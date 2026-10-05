@@ -1,0 +1,11 @@
+{
+  "id": "evidence-v1",
+  "instructions": "Prefer correct, relevant, supported answers; ignore length and position.",
+  "terms": {
+    "verify": 1,
+    "source": 1,
+    "uncertain": 1,
+    "evidence": 1
+  },
+  "tie_margin": 0
+}

@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "provenance": "Generated fixture annotations; no recruited human raters. Repeated templates limit generalization.",
+  "pairs": [
+    {
+      "id": "pair-01",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 1: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-02",
+      "category": "research",
+      "split": "development",
+      "prompt": "Synthetic research comparison 2: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-03",
+      "category": "product",
+      "split": "development",
+      "prompt": "Synthetic product comparison 3: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-04",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 4: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    },
+    {
+      "id": "pair-05",
+      "category": "research",
+      "split": "development",
+      "prompt": "Synthetic research comparison 5: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-06",
+      "category": "product",
+      "split": "development",
+      "prompt": "Synthetic product comparison 6: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-07",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 7: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-08",
+      "category": "research",
+      "split": "development",
+      "prompt": "Synthetic research comparison 8: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    },
+    {
+      "id": "pair-09",
+      "category": "product",
+      "split": "development",
+      "prompt": "Synthetic product comparison 9: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-10",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 10: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-11",
+      "category": "research",
+      "split": "development",
+      "prompt": "Synthetic research comparison 11: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-12",
+      "category": "product",
+      "split": "development",
+      "prompt": "Synthetic product comparison 12: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    },
+    {
+      "id": "pair-13",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 13: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-14",
+      "category": "research",
+      "split": "development",
+      "prompt": "Synthetic research comparison 14: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-15",
+      "category": "product",
+      "split": "development",
+      "prompt": "Synthetic product comparison 15: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-16",
+      "category": "support",
+      "split": "development",
+      "prompt": "Synthetic support comparison 16: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    },
+    {
+      "id": "pair-17",
+      "category": "research",
+      "split": "holdout",
+      "prompt": "Synthetic research comparison 17: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-18",
+      "category": "product",
+      "split": "holdout",
+      "prompt": "Synthetic product comparison 18: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-19",
+      "category": "support",
+      "split": "holdout",
+      "prompt": "Synthetic support comparison 19: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-20",
+      "category": "research",
+      "split": "holdout",
+      "prompt": "Synthetic research comparison 20: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    },
+    {
+      "id": "pair-21",
+      "category": "product",
+      "split": "holdout",
+      "prompt": "Synthetic product comparison 21: which answer better communicates evidence limits?",
+      "a": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "b": "verify source evidence uncertain",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "b",
+        "b",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-22",
+      "category": "support",
+      "split": "holdout",
+      "prompt": "Synthetic support comparison 22: which answer better communicates evidence limits?",
+      "a": "verify source evidence uncertain",
+      "b": "The answer is certainly correct. Nothing needs to be checked at all. This explanation is polished and complete.",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "pair-23",
+      "category": "research",
+      "split": "holdout",
+      "prompt": "Synthetic research comparison 23: which answer better communicates evidence limits?",
+      "a": "verify source",
+      "b": "uncertain evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "tie",
+        "tie",
+        "a"
+      ]
+    },
+    {
+      "id": "pair-24",
+      "category": "product",
+      "split": "holdout",
+      "prompt": "Synthetic product comparison 24: which answer better communicates evidence limits?",
+      "a": "verify source evidence",
+      "b": "source evidence",
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta",
+      "human_votes": [
+        "a",
+        "b",
+        "tie"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "dataset_sha256": "bdcba84d1b2d301ff8875faa4653988f85ac5a0ef201ee8331e0db78f7abc425",
+  "rubric_sha256": "9ee71cb03075e25aa863fe61edd6178b302b4bc7af41b14d7694b182179d0d5b",
+  "rubric": {
+    "id": "evidence-v1",
+    "instructions": "Prefer correct, relevant, supported answers; ignore length and position.",
+    "terms": {
+      "verify": 1,
+      "source": 1,
+      "uncertain": 1,
+      "evidence": 1
+    },
+    "tie_margin": 0
+  },
+  "judge": "mock-evidence",
+  "seed": 17,
+  "summary": {
+    "n": 24,
+    "agreement": 0.75,
+    "kappa": 0.6363636363636364,
+    "agreement_interval": [
+      0.5416666666666666,
+      0.9166666666666666
+    ],
+    "kappa_interval": [
+      0.35483870967741943,
+      0.867403314917127
+    ],
+    "defined_kappa_draws": 500,
+    "bootstrap_draws": 500,
+    "order_flip_rate": 0.0,
+    "padding_flip_rate": 0.0,
+    "padding_a_win_delta": 0.0
+  },
+  "splits": {
+    "development": {
+      "n": 16,
+      "agreement": 0.75,
+      "kappa": 0.6363636363636364,
+      "agreement_interval": [
+        0.5,
+        0.9375
+      ],
+      "kappa_interval": [
+        0.3118279569892473,
+        0.9036144578313253
+      ],
+      "defined_kappa_draws": 500,
+      "bootstrap_draws": 500,
+      "order_flip_rate": 0.0,
+      "padding_flip_rate": 0.0,
+      "padding_a_win_delta": 0.0
+    },
+    "holdout": {
+      "n": 8,
+      "agreement": 0.75,
+      "kappa": 0.6363636363636364,
+      "agreement_interval": [
+        0.375,
+        1.0
+      ],
+      "kappa_interval": [
+        0.14285714285714285,
+        1.0
+      ],
+      "defined_kappa_draws": 500,
+      "bootstrap_draws": 500,
+      "order_flip_rate": 0.0,
+      "padding_flip_rate": 0.0,
+      "padding_a_win_delta": 0.0
+    }
+  },
+  "categories": {
+    "product": {
+      "n": 8,
+      "agreement": 0.75,
+      "kappa": 0.6363636363636364,
+      "agreement_interval": [
+        0.375,
+        1.0
+      ],
+      "kappa_interval": [
+        0.1836734693877551,
+        1.0
+      ],
+      "defined_kappa_draws": 500,
+      "bootstrap_draws": 500,
+      "order_flip_rate": 0.0,
+      "padding_flip_rate": 0.0,
+      "padding_a_win_delta": 0.0
+    },
+    "research": {
+      "n": 8,
+      "agreement": 0.75,
+      "kappa": 0.6363636363636364,
+      "agreement_interval": [
+        0.375,
+        1.0
+      ],
+      "kappa_interval": [
+        0.1836734693877551,
+        1.0
+      ],
+      "defined_kappa_draws": 500,
+      "bootstrap_draws": 500,
+      "order_flip_rate": 0.0,
+      "padding_flip_rate": 0.0,
+      "padding_a_win_delta": 0.0
+    },
+    "support": {
+      "n": 8,
+      "agreement": 0.75,
+      "kappa": 0.6363636363636364,
+      "agreement_interval": [
+        0.5,
+        1.0
+      ],
+      "kappa_interval": [
+        0.1836734693877551,
+        1.0
+      ],
+      "defined_kappa_draws": 500,
+      "bootstrap_draws": 500,
+      "order_flip_rate": 0.0,
+      "padding_flip_rate": 0.0,
+      "padding_a_win_delta": 0.0
+    }
+  },
+  "reference_rater_pair_kappa": 0.6363636363636364,
+  "rows": [
+    {
+      "id": "pair-01",
+      "category": "support",
+      "split": "development",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-02",
+      "category": "research",
+      "split": "development",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-03",
+      "category": "product",
+      "split": "development",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-04",
+      "category": "support",
+      "split": "development",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-05",
+      "category": "research",
+      "split": "development",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-06",
+      "category": "product",
+      "split": "development",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-07",
+      "category": "support",
+      "split": "development",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-08",
+      "category": "research",
+      "split": "development",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-09",
+      "category": "product",
+      "split": "development",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-10",
+      "category": "support",
+      "split": "development",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-11",
+      "category": "research",
+      "split": "development",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-12",
+      "category": "product",
+      "split": "development",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-13",
+      "category": "support",
+      "split": "development",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-14",
+      "category": "research",
+      "split": "development",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-15",
+      "category": "product",
+      "split": "development",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-16",
+      "category": "support",
+      "split": "development",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-17",
+      "category": "research",
+      "split": "holdout",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-18",
+      "category": "product",
+      "split": "holdout",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-19",
+      "category": "support",
+      "split": "holdout",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-20",
+      "category": "research",
+      "split": "holdout",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-21",
+      "category": "product",
+      "split": "holdout",
+      "reference": "b",
+      "base": "b",
+      "swapped": "b",
+      "padded_a": "b",
+      "reference_disputed": false,
+      "review_priority": 0,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-22",
+      "category": "support",
+      "split": "holdout",
+      "reference": "a",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-23",
+      "category": "research",
+      "split": "holdout",
+      "reference": "tie",
+      "base": "tie",
+      "swapped": "tie",
+      "padded_a": "tie",
+      "reference_disputed": true,
+      "review_priority": 1,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    },
+    {
+      "id": "pair-24",
+      "category": "product",
+      "split": "holdout",
+      "reference": "tie",
+      "base": "a",
+      "swapped": "a",
+      "padded_a": "a",
+      "reference_disputed": true,
+      "review_priority": 5,
+      "family_a": "fixture-alpha",
+      "family_b": "fixture-beta"
+    }
+  ],
+  "limitations": [
+    "Synthetic labels are fixture annotations, not recruited human judgments.",
+    "Bootstrap intervals are descriptive; correlated/reused prompts violate independent-pair assumptions.",
+    "Holdout is excluded from review queue, but repeated inspection can still overfit it.",
+    "Family fields are provenance only; no family-bias inference from synthetic mocks."
+  ],
+  "run_id": "a359ceb8a3c51c96cefee08d6578961e5ce2ac439f2968d5d69291ffb7d1ef2a",
+  "execution": {
+    "elapsed_seconds": 0.027172920999987582,
+    "judgment_calls": 72,
+    "provider_billed_cost": null,
+    "note": "Local hardware/energy cost not measured; latency includes analysis."
+  }
+}
