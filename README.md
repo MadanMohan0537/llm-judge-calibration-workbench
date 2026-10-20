@@ -1,140 +1,102 @@
-# VerdictLens
+# LLM Judge Calibration Workbench
 
-**Find out when an AI judge agrees with reference reviewers—and when its preferences change for the wrong reasons.**
+[![CI](https://github.com/MadanMohan0537/llm-judge-calibration-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/MadanMohan0537/llm-judge-calibration-workbench/actions/workflows/ci.yml)
 
-VerdictLens is a local calibration workbench for pairwise answer judges. It measures agreement and Cohen's kappa, runs order-swap and length-padding probes, keeps development and holdout results separate, and queues disputed cases for blinded adjudication.
+**Find out how often an AI judge agrees with reference reviewers, and whether its preferences change for the wrong reasons, such as answer order or answer length.**
 
-**Status:** working portfolio MVP. The bundled dataset has 24 synthetic pairs and generated reference annotations. The two demo judges are deterministic heuristics, not LLMs. An optional adapter calls a model you already have installed in local Ollama; no real-model benchmark is claimed.
+A local Python workbench (standard library only) with a browser review UI. The package name and the CLI program name are still `verdictlens` (`python -m verdictlens`; the setuptools script entry is also `verdictlens`). The page title in the browser UI is still VerdictLens.
 
-## What works today
+## Problem and who it's for
 
-| Workflow | Implemented behavior |
-| --- | --- |
-| Compare judges | Evidence-term heuristic, deliberately length-biased heuristic, optional local Ollama adapter |
-| Measure agreement | Agreement rate, unweighted categorical kappa, category/split breakdowns |
-| Inspect uncertainty | Seeded pair-bootstrap percentile intervals; undefined kappa shown explicitly |
-| Probe position preference | Swap answers, remap the decision to original identities, report preference flips |
-| Probe length preference | Append fixed filler to answer A and report flip rate and A-win-rate change |
-| Edit a rubric | Edit versioned JSON in the workbench; rerun both demo judges and compare with the previous run |
-| Review disagreements | Prioritized development-only queue, blinded order per reviewer, separate independent votes |
-| Preserve evidence | Dataset/rubric hashes, run snapshots in SQLite, JSON reports and vote exports |
+When a team uses a model as a judge ("is answer A or B better?") to evaluate other models, a judge that prefers whichever answer comes first, or whichever is longer, passes that bias into every downstream score. This workbench is for ML evaluation engineers, AI PMs who rely on judge-based scores, and the human reviewers who settle disagreements, so they can calibrate a judge before trusting it.
 
-The original planning idea is **AI PM Project Lab #2, Judge Calibration Lab**. VerdictLens is the product name. [project.json](project.json) preserves this traceability so the idea is not built twice.
+## Approach
 
-## Start in two minutes
+- Score a pairwise judge against reference human votes: **agreement rate and Cohen's kappa**, with seeded pair-bootstrap intervals (default seed 17, 500 draws) and breakdowns by category and split.
+- **Order-swap probe:** swap A and B, map the decision back to the original identities, and count preference flips.
+- **Length probe:** append a fixed filler string to answer A and report the flip rate and the change in A's win rate.
+- Keep **development and holdout** results separate. The review queue contains only development pairs whose priority is above zero (reference disagreement, an order flip, or split reference votes). Holdout pairs stay out of the queue.
+- A **blinded adjudication queue**: the next eligible pair is served in priority order. Whether the displayed answers are swapped is chosen per reviewer by a stable keyed hash. Votes are appended independently. A repeat vote from the same pseudonym is rejected and the original vote is kept.
+- Record dataset and rubric hashes, and store run snapshots in SQLite.
 
-Requirements: **Python 3.11+**. The core and workbench use only the Python standard library. No API key, paid service, Node installation or cloud account is needed.
+## What exists today
+
+Reproduced on Python 3.12.3 with the test and evaluate commands in Quick start. The same summary figures are in [examples/evidence-report.json](examples/evidence-report.json) and [examples/length-report.json](examples/length-report.json).
+
+- Two deterministic demo judges (an evidence-term heuristic and a deliberately length-biased heuristic) and an optional CLI adapter for a model you already run in local Ollama. The browser UI runs only the two heuristics.
+- On the bundled 24 synthetic pairs (16 development, 8 holdout):
+
+  | Demo judge | Reference agreement | Kappa | Order flips | Padding flips | Change in A's win rate |
+  |---|---|---|---|---|---|
+  | Evidence heuristic | 75% | 0.6364 | 0% | 0% | 0 |
+  | Length heuristic | 25% | -0.0909 | 0% | 50% | +0.5 |
+
+  Kappa is rounded to four decimal places from `0.6363636363636364` and `-0.09090909090909091`. These figures come from the committed synthetic fixture, not from recruited human judgments or a public benchmark.
+- A local workbench at `http://127.0.0.1:8788` for comparing the two demo judges, editing the rubric JSON and rerunning, blinded review, and exporting the report JSON and review votes.
+- 28 tests in `tests/test_verdictlens.py` (metrics, review persistence, the Ollama adapter with a mocked transport, and HTTP). The GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs that suite on Python 3.11, 3.12, and 3.13. The local run above used Python 3.12.3 only.
+
+## How success would be measured
+
+| Measure | Status |
+|---|---|
+| Judge–reference agreement and kappa on labeled pairs | The evaluate command computes this. The only committed results are the synthetic fixture in the table above. |
+| Length bias on a candidate judge | Measured on the synthetic fixture: the length heuristic has a 50% padding-flip rate and a +0.5 change in A's win rate. The evidence heuristic has 0% padding flips. |
+| Order bias on a candidate judge | Both bundled demo judges have a 0% order-flip rate. A unit test checks a judge that always selects the displayed first answer and records a 100% order-flip rate. Not yet measured on a live model. |
+| Results for a real LLM judge | Not yet measured. The Ollama adapter is tested with mocked transport. |
+| Reviewer time per adjudicated disagreement | Not yet measured |
+
+## Limitations
+
+- The bundled dataset is small and template-based (four repeated answer patterns), so it shows how the probes work and supports no broad conclusions.
+- A strict-majority reference treats "no majority" as a tie, which mixes inconclusive votes with explicit ties.
+- The order-flip rate is a consistency check, not a full causal estimate of position bias. Filler text can change perceived content, not just length.
+- Blinding is a workflow aid, not a security boundary. Pseudonyms do not authenticate reviewers. The assignment payload hides labels, and a local operator can still read the database.
+- The server binds to `127.0.0.1`, checks the Host and Origin headers, and has no authentication or TLS. Do not expose it publicly.
+- Cost per 1,000 judgments is not measured (`provider_billed_cost` is null). Importing CLI runs of real models into the review UI is backlog work described in [FEATURES.md](FEATURES.md).
+
+See [docs/METHODS.md](docs/METHODS.md) and [FEATURES.md](FEATURES.md).
+
+## Quick start
+
+Running the workbench requires Python 3.11+. No API key and no cloud account. Run these commands from the repository root so `python -m verdictlens` can import the package.
 
 ```bash
-git clone https://github.com/MadanMohan0537/verdictlens.git
-cd verdictlens
+git clone https://github.com/MadanMohan0537/llm-judge-calibration-workbench.git
+cd llm-judge-calibration-workbench
 python -m unittest discover -s tests -v
-python -m verdictlens serve --data examples/synthetic_pairs.json
-```
-
-Open **http://127.0.0.1:8788**. Leave the terminal running.
-
-1. Click **Compare two judges** and inspect the agreement, kappa and bias results.
-2. Expand the split/category evidence. The holdout contains eight pairs and is excluded from review.
-3. Edit the rubric's terms or tie margin, rerun, and compare the previous result.
-4. Enter a reviewer pseudonym and load a blinded development pair.
-5. Vote A, B or tie. Ask another independent reviewer to use a different pseudonym without seeing the earlier vote.
-6. Export the calibration report and review votes. Close the server with Ctrl+C.
-
-The workbench writes `verdictlens.sqlite` locally; it is gitignored. SQLite contains raw pair text, run reports, vote records and a local blinding secret. Keep it private when using your own data. Reviewer pseudonyms are keyed hashes in exports, not anonymous identities.
-
-## CLI reports
-
-```bash
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge mock-evidence --out report.json
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge mock-length --out length-report.json
-python -m verdictlens evaluate --data examples/synthetic_pairs.json --rubric examples/rubric.json --out revised-report.json
+python -m verdictlens serve --data examples/synthetic_pairs.json   # then open http://127.0.0.1:8788
 ```
 
-Optional arguments: `--seed 17` and `--draws 500` (20–5,000 bootstrap draws). Exit code **0** means analysis completed; **2** means invalid input or execution failure. There is no release pass/block policy.
+`serve` writes `verdictlens.sqlite` in the working directory. That file is gitignored. It holds pair text, run snapshots, votes, and the local blinding secret.
 
-### Use a real local judge
-
-Install Ollama separately from its official source and install a model appropriate to your hardware. Then use its exact installed model tag:
+With a model already installed in local Ollama:
 
 ```bash
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge ollama --model YOUR_INSTALLED_MODEL --out local-model-report.json
 ```
 
-This makes three sequential calls per pair to `http://127.0.0.1:11434/api/chat`: original, swapped and padded. Temperature is zero and structured output requests `a`, `b` or `tie`. Invalid output, transport failure or timeout aborts the run; there is no silent mock fallback. Hardware execution remains nondeterministic even at zero temperature. The adapter contract is tested with mocked transport; a live model was not executed for this release.
+That makes three sequential calls per pair to `http://127.0.0.1:11434/api/chat` (original, swapped, padded): 72 calls on this fixture. Temperature is 0. Invalid output, a transport error, or a timeout aborts the run with exit code 2. There is no silent fallback to a mock judge. A live model was not run for the figures above.
 
-The CLI includes call counts and wall-clock duration, but does **not** measure electricity, hardware cost or cost per 1,000 judgments. CLI real-model runs are exported to JSON; importing those runs into the review UI is backlog work.
+To use your own pairs, follow the schema in [examples/synthetic_pairs.json](examples/synthetic_pairs.json). The file needs `schema_version` 1 and 1–500 pairs. Each pair needs a unique `id`; nonempty `category`, `prompt`, `a`, `b`, `family_a`, and `family_b` (each at most 20,000 characters); an explicit `development` or `holdout` split; and at least two votes using `a`, `b`, or `tie`. Use only data you are permitted to process.
 
-## Bring your own reference pairs
+## Deployment
 
-Use the schema illustrated in [examples/synthetic_pairs.json](examples/synthetic_pairs.json):
+Cloudflare Workers is the planned target. This repository is not deployed, and Workers is not configured yet.
 
-```json
-{
-  "schema_version": 1,
-  "provenance": "Document source, consent/license and labeling procedure here",
-  "pairs": [{
-    "id": "example-001",
-    "category": "support",
-    "split": "development",
-    "prompt": "Which answer better addresses the question?",
-    "a": "Answer A",
-    "b": "Answer B",
-    "family_a": "documented-model-family",
-    "family_b": "another-model-family",
-    "human_votes": ["a", "a", "tie"]
-  }]
-}
-```
+There is no `wrangler.toml` and no Worker entry point. The current program is a Python standard-library server bound to `127.0.0.1`. A Workers deploy needs:
 
-Required: unique IDs, nonempty text/family/category fields, an explicit `development` or `holdout` split, and at least two votes using `a`, `b`, `tie`. There are limits of 500 pairs and 20,000 characters per text field. Use only data you are permitted to process. Avoid publishing private conversations or review databases.
+- a `wrangler.toml`
+- a Worker entry point
+- Python Workers, or a JavaScript/TypeScript port of the workbench
 
-Reference aggregation uses a **strict majority**; no majority becomes tie. That conflates inconclusive votes with explicit tie and must be considered when interpreting results. A separate first-two-rater kappa describes those raters only; it is not a universal human-agreement ceiling.
-
-## Reproducible demonstration
+The deploy path is Cloudflare Workers with `npx wrangler deploy`, with no versioned release steps. When the configuration above exists, deploy with:
 
 ```bash
-python -m examples.generate_fixture
-python -m verdictlens evaluate --data examples/synthetic_pairs.json --out report.json
+npx wrangler deploy
 ```
 
-| Demo judge | Reference agreement | Kappa | Order flips | Padding flips |
-| --- | --- | --- | --- | --- |
-| Evidence heuristic | 75% | 0.6364 | 0% | 0% |
-| Length heuristic | 25% | -0.0909 | 0% | 50% |
+## License
 
-These values are measured on the committed synthetic fixture, not recruited human judgments or public benchmark results. The repeated templates intentionally make the probe understandable and invalidate claims of broad generalization. Full example outputs are in [examples/evidence-report.json](examples/evidence-report.json) and [examples/length-report.json](examples/length-report.json). Dataset and rubric hashes track content; elapsed time is excluded from the deterministic run identity.
-
-## Methods and limitations
-
-- Kappa is `(observed agreement − chance agreement) / (1 − chance agreement)` using the observed marginal label distributions. If chance agreement is one, kappa is undefined and represented by JSON `null`.
-- Bootstrap resamples pairs with replacement and reports 2.5th/97.5th percentile endpoints. Undefined kappa draws are omitted and counted. Intervals are descriptive, especially for small or correlated samples.
-- Order-flip rate measures consistency after identity remapping; it is not a complete estimate of causal position bias. Filler can alter perceived content, not just length.
-- Family metadata is retained for provenance. Same-family/cross-family bias analysis is not implemented or inferred from the mocks.
-- The review queue prioritizes baseline/reference disagreement, order flips and split reference votes. It excludes holdout pairs and never replaces reference labels.
-- Blinding is a workflow aid, not a security boundary: the same local operator can inspect source labels or earlier reports. Pseudonyms do not authenticate reviewers or prove independence.
-- The server is bound to `127.0.0.1`, validates Host/Origin, and processes requests sequentially. It has no authentication, TLS, multi-user isolation or production deployment support. Do not expose it publicly through a tunnel.
-- Holdout inspection and repeated rubric tuning can overfit. Freeze the rubric before a final evaluation; a separate unseen transfer task remains planned.
-
-See [METHODS.md](docs/METHODS.md) for the validation design and [FEATURES.md](FEATURES.md) for prioritized additions and their acceptance tests.
-
-## Repository map
-
-| Path | Purpose |
-| --- | --- |
-| `verdictlens/core.py` | Schemas, reference aggregation, metrics, probes and queue ranking |
-| `verdictlens/judges.py` | Local Ollama adapter |
-| `verdictlens/review.py` | SQLite snapshots, stable blinding and append-only votes |
-| `verdictlens/web.py`, `workbench.html` | Local HTTP API and rubric/review interface |
-| `verdictlens/__main__.py` | CLI |
-| `examples/` | Synthetic data generator, rubric and measured demo reports |
-| `tests/` | Metric, adapter, queue, persistence and HTTP integration tests |
-| `.github/workflows/ci.yml` | Python 3.11/3.12/3.13 tests and demo evaluation |
-
-## Contributing
-
-Keep fixes focused and run `python -m unittest discover -s tests -v`. Changes to metrics need hand-calculated examples; changes to blinding need tests that no labels or prior votes leak into assignments. Extend input schemas deliberately and retain provenance. Do not replace synthetic results with real-model claims without committing the method, configuration and permitted evidence.
-
-## License and references
-
-Original implementation released under [MIT](LICENSE). No third-party dataset is bundled. Methods and adapter references: [scikit-learn Cohen's kappa documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html), [Ollama API documentation](https://github.com/ollama/ollama/blob/main/docs/api.md). These references describe the interfaces and statistic; they do not validate this application's results.
+MIT. See [LICENSE](LICENSE). Method references: [scikit-learn Cohen's kappa](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html), [Ollama API](https://github.com/ollama/ollama/blob/main/docs/api.md).
