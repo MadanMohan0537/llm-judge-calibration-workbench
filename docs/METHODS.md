@@ -10,4 +10,11 @@ Review tests verify response field boundaries, per-reviewer stable order, canoni
 
 The optional Ollama adapter is tested using transport mocks for its request and result contract. No live model is installed or used in this release, so latency, model reliability and hardware cost are unmeasured. A failed model request aborts the run instead of contaminating results with a deterministic fallback.
 
+Imported reports are checked against the complete dataset and embedded rubric. Row
+coverage, derived reference fields, review priority, all reported aggregates and the
+deterministic run identity must reconcile. Row ordering is intentionally normalized.
+This is an integrity check within a self-contained artifact, not a signature,
+attestation or proof that a model or human reviewer produced the values.
+
 Before a real study: choose a permitted public or freshly authored dataset; document rater identity/procedure separately from public exports; freeze rubric and split; blind reviewers; predeclare sample size and decision thresholds; compare with a random review control; report per-category denominators and uncertainty. Do not interpret the synthetic 0.6364 kappa as validation for a real deployment.
+

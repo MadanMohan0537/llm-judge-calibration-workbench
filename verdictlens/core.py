@@ -91,6 +91,17 @@ def stats(rows, seed=17, draws=500):
     return {'n': len(rows), 'agreement': sum(a == b for a, b in zip(left, right))/len(rows), 'kappa': kappa(left, right), 'agreement_interval': interval(agreements), 'kappa_interval': interval(kappas), 'defined_kappa_draws': len(kappas), 'bootstrap_draws': draws}
 
 
+def summarize(rows, seed=17, draws=500):
+    result = stats(rows, seed, draws)
+    result.update({
+        'order_flip_rate': sum(r['base'] != r['swapped'] for r in rows)/len(rows) if rows else None,
+        'padding_flip_rate': sum(r['base'] != r['padded_a'] for r in rows)/len(rows) if rows else None,
+        'padding_a_win_delta': (sum(r['padded_a'] == 'a' for r in rows)
+                                - sum(r['base'] == 'a' for r in rows))/len(rows) if rows else None,
+    })
+    return result
+
+
 def mock_judge(kind, a, b, rubric):
     if kind == 'mock-length':
         scores = [len(a.split()), len(b.split())]
@@ -118,16 +129,79 @@ def evaluate(data, rubric, kind='mock-evidence', judge=None, seed=17, draws=500)
         swapped = {'a': 'b', 'b': 'a', 'tie': 'tie'}[swapped]
         padded = invoke(p['a'] + ' ' + 'Additional wording without additional information. ' * 12, p['b'])
         rows.append({'id': p['id'], 'category': p['category'], 'split': p['split'], 'reference': reference(p['human_votes']), 'base': base, 'swapped': swapped, 'padded_a': padded, 'reference_disputed': len(set(p['human_votes'])) > 1, 'review_priority': int(base != reference(p['human_votes']))*4 + int(base != swapped)*2 + int(len(set(p['human_votes'])) > 1), 'family_a': p['family_a'], 'family_b': p['family_b']})
-    def summarize(items):
-        result = stats(items, seed, draws)
-        result.update({'order_flip_rate': sum(r['base'] != r['swapped'] for r in items)/len(items) if items else None, 'padding_flip_rate': sum(r['base'] != r['padded_a'] for r in items)/len(items) if items else None, 'padding_a_win_delta': (sum(r['padded_a'] == 'a' for r in items)-sum(r['base'] == 'a' for r in items))/len(items) if items else None})
-        return result
-    splits = {s: summarize([r for r in rows if r['split'] == s]) for s in ('development', 'holdout')}
-    categories = {c: summarize([r for r in rows if r['category'] == c]) for c in sorted({r['category'] for r in rows})}
+    splits = {s: summarize([r for r in rows if r['split'] == s], seed, draws) for s in ('development', 'holdout')}
+    categories = {c: summarize([r for r in rows if r['category'] == c], seed, draws) for c in sorted({r['category'] for r in rows})}
     # First two raters only: descriptive agreement, not a universal human ceiling.
     human_kappa = kappa([p['human_votes'][0] for p in data['pairs']], [p['human_votes'][1] for p in data['pairs']])
-    report = {'schema_version': 1, 'dataset_sha256': digest(data), 'rubric_sha256': digest(rubric), 'rubric': rubric, 'judge': kind, 'seed': seed, 'summary': summarize(rows), 'splits': splits, 'categories': categories, 'reference_rater_pair_kappa': human_kappa, 'rows': rows, 'limitations': ['Synthetic labels are fixture annotations, not recruited human judgments.', 'Bootstrap intervals are descriptive; correlated/reused prompts violate independent-pair assumptions.', 'Holdout is excluded from review queue, but repeated inspection can still overfit it.', 'Family fields are provenance only; no family-bias inference from synthetic mocks.']}
+    report = {'schema_version': 1, 'dataset_sha256': digest(data), 'rubric_sha256': digest(rubric), 'rubric': rubric, 'judge': kind, 'seed': seed, 'summary': summarize(rows, seed, draws), 'splits': splits, 'categories': categories, 'reference_rater_pair_kappa': human_kappa, 'rows': rows, 'limitations': ['Synthetic labels are fixture annotations, not recruited human judgments.', 'Bootstrap intervals are descriptive; correlated/reused prompts violate independent-pair assumptions.', 'Holdout is excluded from review queue, but repeated inspection can still overfit it.', 'Family fields are provenance only; no family-bias inference from synthetic mocks.']}
     report['run_id'] = digest(report)
+    return report
+
+
+def validate_imported_report(data, report):
+    """Validate a persisted evaluation before it can enter blinded review."""
+    validate_dataset(data)
+    if not isinstance(report, dict) or report.get('schema_version') != 1:
+        raise ValueError('report schema_version must be 1')
+    if report.get('dataset_sha256') != digest(data):
+        raise ValueError('report dataset hash does not match supplied dataset bytes')
+    rubric = validate_rubric(report.get('rubric'))
+    if report.get('rubric_sha256') != digest(rubric):
+        raise ValueError('report rubric hash does not match embedded rubric')
+    if not isinstance(report.get('judge'), str) or not report['judge'].strip():
+        raise ValueError('report judge identity must be nonempty')
+    if isinstance(report.get('seed'), bool) or not isinstance(report.get('seed'), int):
+        raise ValueError('report seed must be an integer')
+    rows = report.get('rows')
+    if not isinstance(rows, list):
+        raise ValueError('report rows must be a list')
+    by_id = {}
+    required = {'id', 'category', 'split', 'reference', 'base', 'swapped', 'padded_a',
+                'reference_disputed', 'review_priority', 'family_a', 'family_b'}
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != required:
+            raise ValueError('each report row must have the exact supported fields')
+        if row['id'] in by_id:
+            raise ValueError('report contains duplicate pair id')
+        if any(row[field] not in LABELS for field in ('reference', 'base', 'swapped', 'padded_a')):
+            raise ValueError('report labels must use a/b/tie')
+        by_id[row['id']] = row
+    pairs = {p['id']: p for p in data['pairs']}
+    if set(by_id) != set(pairs):
+        raise ValueError('report must cover every dataset pair exactly once')
+    for pair_id, pair in pairs.items():
+        row = by_id[pair_id]
+        expected_reference = reference(pair['human_votes'])
+        expected_priority = (int(row['base'] != expected_reference)*4
+                             + int(row['base'] != row['swapped'])*2
+                             + int(len(set(pair['human_votes'])) > 1))
+        expected = {'category': pair['category'], 'split': pair['split'],
+                    'reference': expected_reference,
+                    'reference_disputed': len(set(pair['human_votes'])) > 1,
+                    'review_priority': expected_priority,
+                    'family_a': pair['family_a'], 'family_b': pair['family_b']}
+        if any(row[key] != value for key, value in expected.items()):
+            raise ValueError(f'{pair_id}: report row conflicts with dataset or derived evidence')
+    ordered = [by_id[pair_id] for pair_id in sorted(by_id)]
+    draws = report.get('summary', {}).get('bootstrap_draws')
+    if isinstance(draws, bool) or not isinstance(draws, int):
+        raise ValueError('report bootstrap draw count is missing')
+    expected_summary = summarize(ordered, report['seed'], draws)
+    expected_splits = {s: summarize([r for r in ordered if r['split'] == s], report['seed'], draws)
+                       for s in ('development', 'holdout')}
+    expected_categories = {c: summarize([r for r in ordered if r['category'] == c],
+                                        report['seed'], draws)
+                           for c in sorted({r['category'] for r in ordered})}
+    human_kappa = kappa([p['human_votes'][0] for p in data['pairs']],
+                        [p['human_votes'][1] for p in data['pairs']])
+    if (report.get('summary') != expected_summary or report.get('splits') != expected_splits
+            or report.get('categories') != expected_categories
+            or report.get('reference_rater_pair_kappa') != human_kappa):
+        raise ValueError('report aggregates do not reconcile with row evidence')
+    identity = {key: value for key, value in report.items() if key not in ('run_id', 'execution')}
+    identity['rows'] = sorted(identity['rows'], key=lambda row: row['id'])
+    if report.get('run_id') != digest(identity):
+        raise ValueError('report run_id does not match immutable evidence')
     return report
 
 
@@ -136,3 +210,4 @@ def review_queue(data, report):
         raise ValueError('dataset does not match run')
     lookup = {p['id']: p for p in data['pairs']}
     return [lookup[r['id']] for r in sorted(report['rows'], key=lambda r: (-r['review_priority'], r['id'])) if r['split'] == 'development' and r['review_priority'] > 0]
+

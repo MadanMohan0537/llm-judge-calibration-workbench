@@ -18,6 +18,7 @@ VerdictLens is a local calibration workbench for pairwise answer judges. It meas
 | Edit a rubric | Edit versioned JSON in the workbench; rerun both demo judges and compare with the previous run |
 | Review disagreements | Prioritized development-only queue, blinded order per reviewer, separate independent votes |
 | Preserve evidence | Dataset/rubric hashes, run snapshots in SQLite, JSON reports and vote exports |
+| Import real runs | Reconcile a CLI report against its dataset, then save an immutable review snapshot |
 
 The original planning idea is **AI PM Project Lab #2, Judge Calibration Lab**. VerdictLens is the product name. [project.json](project.json) preserves this traceability so the idea is not built twice.
 
@@ -49,6 +50,7 @@ The workbench writes `verdictlens.sqlite` locally; it is gitignored. SQLite cont
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge mock-evidence --out report.json
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge mock-length --out length-report.json
 python -m verdictlens evaluate --data examples/synthetic_pairs.json --rubric examples/rubric.json --out revised-report.json
+python -m verdictlens import-report --data examples/synthetic_pairs.json --report report.json --database verdictlens.sqlite
 ```
 
 Optional arguments: `--seed 17` and `--draws 500` (20–5,000 bootstrap draws). Exit code **0** means analysis completed; **2** means invalid input or execution failure. There is no release pass/block policy.
@@ -63,7 +65,20 @@ python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge olla
 
 This makes three sequential calls per pair to `http://127.0.0.1:11434/api/chat`: original, swapped and padded. Temperature is zero and structured output requests `a`, `b` or `tie`. Invalid output, transport failure or timeout aborts the run; there is no silent mock fallback. Hardware execution remains nondeterministic even at zero temperature. The adapter contract is tested with mocked transport; a live model was not executed for this release.
 
-The CLI includes call counts and wall-clock duration, but does **not** measure electricity, hardware cost or cost per 1,000 judgments. CLI real-model runs are exported to JSON; importing those runs into the review UI is backlog work.
+The CLI includes call counts and wall-clock duration, but does **not** measure electricity, hardware cost or cost per 1,000 judgments.
+
+### Import a CLI run for adjudication
+
+`import-report` validates a report before it can enter the blinded review store. It
+requires exact dataset and rubric hashes, complete and unique pair coverage, supported
+labels, dataset-consistent metadata and reference votes, reconciled summary/split/category
+statistics, and a matching immutable run identity. Row order may differ. Execution timing
+metadata is retained but is not part of the deterministic run identity.
+
+The first valid import reports `imported` and the number of queued development pairs.
+Re-importing identical evidence is idempotent. An existing run can never be overwritten
+with different content. Import validation establishes internal consistency, not that an
+upstream model actually ran or that human labels are trustworthy.
 
 ## Bring your own reference pairs
 
@@ -122,13 +137,13 @@ See [METHODS.md](docs/METHODS.md) for the validation design and [FEATURES.md](FE
 
 | Path | Purpose |
 | --- | --- |
-| `verdictlens/core.py` | Schemas, reference aggregation, metrics, probes and queue ranking |
+| `verdictlens/core.py` | Schemas, reference aggregation, metrics, probes, queue ranking and report reconciliation |
 | `verdictlens/judges.py` | Local Ollama adapter |
 | `verdictlens/review.py` | SQLite snapshots, stable blinding and append-only votes |
 | `verdictlens/web.py`, `workbench.html` | Local HTTP API and rubric/review interface |
 | `verdictlens/__main__.py` | CLI |
 | `examples/` | Synthetic data generator, rubric and measured demo reports |
-| `tests/` | Metric, adapter, queue, persistence and HTTP integration tests |
+| `tests/` | Metric, adapter, import, queue, persistence and HTTP integration tests |
 | `.github/workflows/ci.yml` | Python 3.11/3.12/3.13 tests and demo evaluation |
 
 ## Contributing
@@ -138,3 +153,4 @@ Keep fixes focused and run `python -m unittest discover -s tests -v`. Changes to
 ## License and references
 
 Original implementation released under [MIT](LICENSE). No third-party dataset is bundled. Methods and adapter references: [scikit-learn Cohen's kappa documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html), [Ollama API documentation](https://github.com/ollama/ollama/blob/main/docs/api.md). These references describe the interfaces and statistic; they do not validate this application's results.
+

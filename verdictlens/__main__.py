@@ -6,6 +6,7 @@ import time
 from .core import DEFAULT_RUBRIC, evaluate, validate_rubric
 from .judges import ollama_judge
 from .web import make_server
+from .review import ReviewStore
 
 
 def main(argv=None):
@@ -23,9 +24,22 @@ def main(argv=None):
     web.add_argument('--data', required=True)
     web.add_argument('--database', default='verdictlens.sqlite')
     web.add_argument('--port', type=int, default=8788)
+    imported = sub.add_parser('import-report')
+    imported.add_argument('--data', required=True)
+    imported.add_argument('--report', required=True)
+    imported.add_argument('--database', default='verdictlens.sqlite')
     args = parser.parse_args(argv)
     try:
         data = json.loads(Path(args.data).read_text())
+        if args.command == 'import-report':
+            report = json.loads(Path(args.report).read_text())
+            store = ReviewStore(args.database)
+            try:
+                result = store.import_run(data, report)
+            finally:
+                store.close()
+            print(json.dumps(result, indent=2))
+            return 0
         if args.command == 'serve':
             server = make_server(data, args.database, args.port)
             print(f'VerdictLens: http://127.0.0.1:{server.server_port}', flush=True)
@@ -54,3 +68,4 @@ def main(argv=None):
 
 if __name__ == '__main__':
     raise SystemExit(main())
+

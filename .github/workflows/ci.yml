@@ -15,4 +15,6 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
       - run: python -m verdictlens evaluate --data examples/synthetic_pairs.json --out report.json
+      - run: python -m verdictlens import-report --data examples/synthetic_pairs.json --report report.json --database review.sqlite
       - run: python -m verdictlens evaluate --data examples/synthetic_pairs.json --judge mock-length --out length-report.json
+

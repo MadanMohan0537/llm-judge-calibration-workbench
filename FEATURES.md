@@ -32,17 +32,35 @@ Pairwise reference loader, two deterministic judges, optional local Ollama calls
 
 **Risk/tradeoff:** task differences can make the metric misleading. Prefer an explicit compatibility review over automatic cross-domain rankings. Relative effort: medium.
 
-## New P1 — Immutable real-run import: planned
+## New P1 — Immutable real-run import: implemented October 21, 2026
 
 **Problem:** CLI Ollama evidence cannot yet enter the UI review workflow.
 
-**Behavior:** import a report only when its dataset hash, rubric hash, row coverage and judge identity validate; save the snapshot and queue development disputes.
+**Behavior:** import a report only when its dataset/rubric hashes, exact row coverage,
+labels, dataset-derived fields, aggregates, judge identity and deterministic run identity
+validate. Row order is normalized. Save the snapshot without permitting overwrite and
+queue development disputes. Identical re-import is idempotent.
 
 **Dependencies:** strict report schema, provenance validation and adapter-call metadata.
 
-**Success test:** reordered valid rows import; missing, duplicate or altered labels fail; imports cannot overwrite an existing snapshot.
+**Success test:** reordered valid rows import; missing, duplicate or altered labels,
+metadata, aggregates and run identities fail; imports cannot overwrite an existing
+snapshot. Six import-focused tests plus the CI round trip pass.
 
-**Risk/tradeoff:** a valid schema does not establish trustworthy upstream labels. Display source provenance and never silently treat a user-supplied report as verified execution. Medium effort; higher priority than hosted deployment because it connects the existing model adapter to the review product.
+**Risk/tradeoff:** a valid schema does not establish trustworthy upstream labels or
+verified execution. The local database stores raw text and reports. Execution timing is
+mutable wrapper metadata so the same evidence can be moved across machines; this means it
+cannot authenticate runtime claims.
+
+## Refined priorities — planned
+
+| Priority | Problem and behavior | Dependencies | Success test | Risks/tradeoffs |
+| --- | --- | --- | --- | --- |
+| P0 | Rubric transfer can fail unseen tasks; freeze a rubric and compare compatible domains separately. | Independently labeled transfer fixture and compatibility declaration | Seeded transfer loss remains visible even if pooled kappa rises. | Domain quality definitions may be incomparable. |
+| P1 | Adjudication efficiency is asserted but unmeasured; compare prioritized and seeded-random queues at equal budgets. | Fresh pool and review-time capture | Predeclared ambiguity-resolution gain without holdout loss. | Selective review can bias conclusions. |
+| P1 | Imported execution is self-asserted; add a local artifact manifest with model/configuration digests. | Adapter metadata contract | Changed model/config artifact invalidates provenance. | Digests do not prove execution. |
+| P2 | Reviewer counts can conceal sparse or divergent raters; show overlap-aware reliability. | Sufficient shared assignments | Contradictory rater visible; sparse overlap suppressed. | Disagreement may reflect expertise. |
+| P2 | Single probes confound instability and intervention; add symmetric repeated probes with budgets. | Recorded runtime/model versions | Position bias and stochasticity have distinct seeded signatures. | Triples calls and energy use. |
 
 ## New P2 — Reviewer reliability panel: planned
 
@@ -79,3 +97,4 @@ Pairwise reference loader, two deterministic judges, optional local Ollama calls
 **Success test:** unknown families stay unknown; imbalanced samples cannot produce a headline bias conclusion.
 
 **Risk/tradeoff:** family names are not causal controls and models may have seen benchmark pairs. Defer until real-run ingestion and provenance checks work. Large validation effort.
+

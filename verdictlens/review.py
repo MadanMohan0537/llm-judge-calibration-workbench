@@ -4,7 +4,7 @@ import hmac
 import json
 import secrets
 import sqlite3
-from .core import LABELS, review_queue
+from .core import LABELS, review_queue, validate_imported_report
 
 
 class ReviewStore:
@@ -18,6 +18,21 @@ class ReviewStore:
     def save_run(self, data, report):
         self.db.execute('INSERT OR IGNORE INTO runs VALUES (?,?,?)', (report['run_id'], json.dumps(data), json.dumps(report)))
         self.db.commit()
+
+    def import_run(self, data, report):
+        validate_imported_report(data, report)
+        encoded_data, encoded_report = json.dumps(data), json.dumps(report)
+        row = self.db.execute('SELECT dataset,report FROM runs WHERE id=?',
+                              (report['run_id'],)).fetchone()
+        if row:
+            if json.loads(row[0]) == data and json.loads(row[1]) == report:
+                return {'run_id': report['run_id'], 'status': 'already_present'}
+            raise ValueError('run id already exists; immutable snapshot preserved')
+        self.db.execute('INSERT INTO runs VALUES (?,?,?)',
+                        (report['run_id'], encoded_data, encoded_report))
+        self.db.commit()
+        return {'run_id': report['run_id'], 'status': 'imported',
+                'queued_pairs': len(review_queue(data, report))}
 
     def _load(self, run):
         row = self.db.execute('SELECT dataset,report FROM runs WHERE id=?', (run,)).fetchone()
@@ -68,3 +83,4 @@ class ReviewStore:
 
     def close(self):
         self.db.close()
+
